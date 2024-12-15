@@ -3,7 +3,6 @@ import cors from '@middy/http-cors'
 import httpErrorHandler from '@middy/http-error-handler'
 import {getUserId} from '../utils.mjs'
 import {createTodo} from '../../businessLogic/todos.mjs'
-import {getUploadUrl} from '../../fileStorage/attachmentUtils.mjs'
 
 export const handler = middy()
   .use(httpErrorHandler())

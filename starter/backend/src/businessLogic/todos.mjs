@@ -15,7 +15,7 @@ export async function createTodo(newTodo, userId) {
     return await todoAccess.createTodo({
         todoId: todoId,
         userId:  userId,
-        attachmentUrl: `https://${bucketName}.s3.amazonaws.com/${todoId}`,
+        attachmentUrl: null,
         name: newTodo.name,
         dueDate: newTodo.dueDate,
         done: isDone,
@@ -31,3 +31,6 @@ export async function deleteTodo(userId, todoId) {
     return await todoAccess.deleteTodo(userId, todoId)
 }
 
+export async function updateAttchmentTodo(userId, todoId, url ) {
+    return await todoAccess.updateAttchmentTodo(userId, todoId, url)
+}

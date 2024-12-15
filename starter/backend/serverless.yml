@@ -2,6 +2,7 @@ service: serverless-todo-app
 
 plugins:
   - serverless-iam-roles-per-function
+  - serverless-reqvalidator-plugin
 
 frameworkVersion: '4'
 
@@ -21,33 +22,33 @@ provider:
     TODOS_ATTACHMENT_S3_BUCKET: serverless-todos-${opt:stage, 'dev'}-${self:provider.region}-${aws:accountId}
     SIGNED_URL_EXPIRATION: 300
 
-  iam:
-    role:
-      statements:
-        - Effect: Allow
-          Action:
-            - dynamodb:Scan
-            - dynamodb:PutItem
-            - dynamodb:GetItem
-            - dynamodb:UpdateItem
-            - dynamodb:DeleteItem
-            - dynamodb:Query
-          Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}  
-        - Effect: Allow
-          Action:
-            - dynamodb:Query
-          Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}/index/${self:provider.environment.TODOS_USER_ID_INDEX}
-        - Effect: Allow
-          Action:
-            - s3:PutObject
-            - s3:GetObject
-          Resource: arn:aws:s3:::${self:provider.environment.TODOS_ATTACHMENT_S3_BUCKET}/*
-        - Effect: "Allow"
-          Action:
-            - "xray:PutTraceSegments"
-            - "xray:PutTelemetryRecords"
-          Resource:
-            - "*"
+#  iam:
+#    role:
+#      statements:
+#        - Effect: Allow
+#          Action:
+#            - dynamodb:Scan
+#            - dynamodb:PutItem
+#            - dynamodb:GetItem
+#            - dynamodb:UpdateItem
+#            - dynamodb:DeleteItem
+#            - dynamodb:Query
+#          Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}  
+#        - Effect: Allow
+#          Action:
+#            - dynamodb:Query
+#          Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}/index/${self:provider.environment.TODOS_USER_ID_INDEX}
+#        - Effect: Allow
+#          Action:
+#            - s3:PutObject
+#            - s3:GetObject
+#          Resource: arn:aws:s3:::${self:provider.environment.TODOS_ATTACHMENT_S3_BUCKET}/*
+#        - Effect: "Allow"
+#          Action:
+#            - "xray:PutTraceSegments"
+#            - "xray:PutTelemetryRecords"
+#         Resource:
+#            - "*"
 functions:
 
   Auth:
@@ -83,6 +84,9 @@ functions:
           path: todos
           authorizer: Auth
           cors: true
+          request:
+            schemas:
+              application/json: ${file(models/create-todo-model.json)}
     iamRoleStatements:
       - Effect: Allow
         Action:
@@ -104,6 +108,9 @@ functions:
           path: todos/{todoId}
           authorizer: Auth
           cors: true
+          request:
+            schemas:
+              application/json: ${file(models/update-todo-model.json)}
     iamRoleStatements:
       - Effect: Allow
         Action:
@@ -150,6 +157,10 @@ functions:
           - s3:PutObject
           - s3:GetObject
         Resource: arn:aws:s3:::${self:provider.environment.TODOS_ATTACHMENT_S3_BUCKET}/*
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
       - Effect: "Allow"
         Action:
           - "xray:PutTraceSegments"

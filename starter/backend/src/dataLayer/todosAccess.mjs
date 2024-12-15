@@ -63,6 +63,24 @@ export class TodoAccess {
 
     }
 
+    async updateAttchmentTodo(userId, todoId, attachmentUrl) {
+        console.log(`update a todo attachmentUrl with id ${todoId}`)
+
+        await this.dynamoDBDocument.update({
+            TableName: this.todosTable,
+            Key: { todoId: todoId, userId: userId },
+            UpdateExpression: 'set #attachmentUrl = :attachmentUrl',
+            ExpressionAttributeNames: {
+                '#attachmentUrl': 'attachmentUrl'
+            },
+            ExpressionAttributeValues: {
+                ':attachmentUrl': attachmentUrl
+            },
+            ReturnValues: 'UPDATED_NEW'
+        })
+
+    }
+
     async deleteTodo(userId, todoId) {
         console.log(`delete a todo with id ${todoId}`)
 
